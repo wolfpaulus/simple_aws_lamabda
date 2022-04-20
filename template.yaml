@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A simple AWS Lambda Function
+
+Resources:
+  SimpleLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CS118
+      CodeUri: lambda/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Timeout: 3
+      MemorySize: 512
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /{function}
+            Method: get
+  LogsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${SimpleLambda}'
+      RetentionInDays: 7
+
+Outputs:
+  SimpleLambdaApi:
+    Description: "Prod stage API Gateway endpoint URL for LambdaOne"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/{function}"
+  SimpleLambdaFunction:
+    Description: "SimpleLambda Function ARN"
+    Value: !GetAtt SimpleLambda.Arn
+  SimpleLambdaIamRole:
+    Description: "Implicit IAM Role created for SimpleLambda"
+    Value: !GetAtt SimpleLambdaRole.Arn
